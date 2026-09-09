@@ -24,7 +24,8 @@ async def orient_pdf(file: UploadFile = File(...)):
 
         return Response(
             content=normalized_pdf_bytes,
-            media_type="application/pdf"
+            media_type="application/pdf",
+            headers={"Content-Disposition": "attachment; filename=normalized.pdf"}
         )
 
     except Exception as e:

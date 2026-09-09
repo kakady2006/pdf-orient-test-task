@@ -15,7 +15,7 @@ def normalize_pdf_orientation(pdf_bytes: bytes) -> bytes:
 
     for page_num in range(len(doc)):
         page = doc.load_page(page_num)
-        pix = page.get_pixmap(dpi=150)
+        pix = page.get_pixmap(dpi=300)
         img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
         try:
@@ -27,13 +27,19 @@ def normalize_pdf_orientation(pdf_bytes: bytes) -> bytes:
             if rotation_match and confidence_match:
                 angle = int(rotation_match.group(1))
                 confidence = float(confidence_match.group(1))
+                print(f"Страница {page_num} -> Tesseract просит повернуть на: {angle} (Уверенность: {confidence})",
+                      flush=True)
 
-                if confidence > 2.0 and angle != 0:
+                if confidence > 0.5 and angle != 0:
                     current_rotation = page.rotation
-                    new_rotation = (current_rotation - angle) % 360
-                    page.set_rotation(new_rotation)
 
-        except pytesseract.TesseractError:
+                    if confidence > 0.5 and angle != 0:
+                        current_rotation = page.rotation
+                        new_rotation = (current_rotation + angle) % 360
+                        page.set_rotation(new_rotation )
+
+        except pytesseract.TesseractError as e:
+            print(f"Страница {page_num} пропущена. Ошибка: {e}", flush=True)
             continue
 
     out_pdf = io.BytesIO()
