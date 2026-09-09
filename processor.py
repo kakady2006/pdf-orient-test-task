@@ -3,7 +3,12 @@ import re
 import fitz
 import pytesseract
 from PIL import Image
+import os
 
+# Для запуска нужен установленный Tesseract. По умолчанию он включен в большинство дистрибутивов Linux.
+# Чтобы запустить на Windows, нужно установить Tesseract. Поэтому использую проверку, чтобы можно было этот код без изменений запустить на сервере
+if os.name == 'nt':
+    pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 def normalize_pdf_orientation(pdf_bytes: bytes) -> bytes:
     doc = fitz.open(stream=pdf_bytes, filetype="pdf")
@@ -15,7 +20,6 @@ def normalize_pdf_orientation(pdf_bytes: bytes) -> bytes:
 
         try:
             osd_result = pytesseract.image_to_osd(img)
-            print(f"Страница {page_num}:", osd_result.replace('\n', ' | '))  # Временный принт для отладки
 
             rotation_match = re.search(r'Rotate: (\d+)', osd_result)
             confidence_match = re.search(r'Orientation confidence: ([\d.]+)', osd_result)
