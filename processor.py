@@ -18,7 +18,7 @@ def normalize_pdf_orientation(pdf_bytes: bytes) -> bytes:
             print(f"Страница {page_num}:", osd_result.replace('\n', ' | '))  # Временный принт для отладки
 
             rotation_match = re.search(r'Rotate: (\d+)', osd_result)
-            confidence_match = re.search(r'Orientation confidence: ([\d\.]+)', osd_result)
+            confidence_match = re.search(r'Orientation confidence: ([\d.]+)', osd_result)
 
             if rotation_match and confidence_match:
                 angle = int(rotation_match.group(1))
